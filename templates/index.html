@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake News Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📰 Fake News Detector</h1>
+            <p>Paste a news article or headline to check if it's real or fake</p>
+        </header>
+
+        <main>
+            <textarea id="newsText" placeholder="Paste your news article here..."></textarea>
+            
+            <div class="button-group">
+                <button id="predictBtn" onclick="predictNews()">🔍 Analyze News</button>
+                <button id="clearBtn" onclick="clearText()">🗑️ Clear</button>
+            </div>
+
+            <div id="result" class="result hidden">
+                <div class="result-card">
+                    <h2>Analysis Result</h2>
+                    <div id="predictionText" class="prediction"></div>
+                    <div id="confidenceBar" class="confidence-bar">
+                        <div id="confidenceFill" class="confidence-fill"></div>
+                    </div>
+                    <div id="confidenceText" class="confidence-text"></div>
+                    <div id="textStats" class="stats"></div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>⚠️ Disclaimer</h3>
+                <p>This tool uses machine learning to detect patterns in text. It is not 100% accurate and should be used as an assistive tool for critical thinking, not as an absolute authority on truth.</p>
+                
+                <h3>📊 How It Works</h3>
+                <p>The model analyzes linguistic patterns including sensational language, punctuation usage, and writing style to classify news articles.</p>
+            </div>
+        </main>
+
+        <footer>
+            <p>Built with Python, Flask, Scikit-learn | Fake News Detector Project</p>
+        </footer>
+    </div>
+
+    <script>
+        async function predictNews() {
+            const text = document.getElementById('newsText').value;
+            const resultDiv = document.getElementById('result');
+            const predictBtn = document.getElementById('predictBtn');
+            
+            if (!text.trim()) {
+                alert('Please enter some news text to analyze');
+                return;
+            }
+            
+            // Show loading state
+            predictBtn.disabled = true;
+            predictBtn.textContent = '⏳ Analyzing...';
+            resultDiv.classList.add('hidden');
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResult(data);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            } finally {
+                predictBtn.disabled = false;
+                predictBtn.textContent = '🔍 Analyze News';
+            }
+        }
+        
+        function displayResult(data) {
+            const resultDiv = document.getElementById('result');
+            const predictionText = document.getElementById('predictionText');
+            const confidenceFill = document.getElementById('confidenceFill');
+            const confidenceText = document.getElementById('confidenceText');
+            const textStats = document.getElementById('textStats');
+            
+            // Set prediction text with color
+            const isFake = data.prediction === 'Fake News';
+            predictionText.textContent = data.prediction;
+            predictionText.className = 'prediction ' + (isFake ? 'fake' : 'real');
+            
+            // Set confidence bar
+            const confidence = data.confidence;
+            confidenceFill.style.width = confidence + '%';
+            confidenceFill.className = 'confidence-fill ' + (isFake ? 'fake-bg' : 'real-bg');
+            confidenceText.textContent = `Confidence: ${confidence}%`;
+            
+            // Set text stats
+            textStats.textContent = `📝 Article length: ${data.text_length} words`;
+            
+            // Show result
+            resultDiv.classList.remove('hidden');
+        }
+        
+        function clearText() {
+            document.getElementById('newsText').value = '';
+            document.getElementById('result').classList.add('hidden');
+        }
+        
+        // Allow Enter key for prediction (Ctrl+Enter)
+        document.getElementById('newsText').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                predictNews();
+            }
+        });
+    </script>
+</body>
+</html>
