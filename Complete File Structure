@@ -1,0 +1,22 @@
+fake-news-detector/
+│
+├── app.py                    # Flask web application
+├── train_model.py            # Script to train and save the model
+├── predict.py                # Prediction function for new text
+├── requirements.txt          # Dependencies
+├── README.md                 # Project documentation
+│
+├── data/
+│   └── news.csv              # Dataset (download manually)
+│
+├── models/
+│   └── (saved after training)
+│
+├── templates/
+│   └── index.html            # Web interface
+│
+├── static/
+│   └── style.css             # Styling for web app
+│
+└── notebooks/
+    └── eda.ipynb             # Exploratory analysis
