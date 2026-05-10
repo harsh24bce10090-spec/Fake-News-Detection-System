@@ -23,3 +23,12 @@ A machine learning web application that detects fake news articles using Natural
 ```bash
 pip install -r requirements.txt
 python -c "import nltk; nltk.download('stopwords')"
+
+fake-news-detector/
+├── app.py              # Flask web app
+├── train_model.py      # Training script
+├── predict.py          # Prediction script
+├── requirements.txt    # Dependencies
+├── models/            # Saved model files
+├── templates/         # HTML templates
+└── static/            # CSS files
